@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+  backend:
+    container_name: nestjs-server_backend
+    restart: always
+    build: .
+    environment:
+      - APP_ENV=development
+      - APP_PORT=3000
+    volumes:
+      - ./src:/var/www/nestjs-server/src
+      - ./test:/var/www/nestjs-server/test
+    working_dir: /var/www/nestjs-server
+    ports:
+      - "3000:3000"
+    links:
+      - mysql
+      - redis
+    depends_on:
+      - mysql
+      - redis
+  mysql: # Example Service
+    container_name: nestjs-server_mysql
+    restart: always
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=nestjsdb
+    ports:
+    - "3306:3306"
+    volumes:
+    - nestjs-server_mysql_data:/var/lib/mysql
+  redis: # Example Service
+    container_name: nestjs-server_redis
+    restart: always
+    image: redis:6.0-alpine
+    expose:
+      - "6379"
+    volumes:
+      - nestjs-server_redis_data:/data
+
+volumes:
+  nestjs-server_mysql_data:
+  nestjs-server_redis_data:
+
+networks:
+  default:
+    external:
+      name: nestjs-server
